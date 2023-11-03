@@ -1,4 +1,6 @@
 const drinksController = require("../controllers/drinksController");
+const authMiddleware = require("../middlewares/authMiddleware");
+const rolesMiddleware = require("../middlewares/rolesMiddleware.JS");
 const validateBodyClosure = require("../middlewares/validateBody");
 
 const drinksRoutes = require("express").Router();
@@ -7,11 +9,17 @@ const addSchema = require("../schemas/validateBody");
 drinksRoutes.post(
   "/drinks",
   validateBodyClosure(addSchema),
+  authMiddleware,
   drinksController.add
 );
-
+// ["ADMIN", "MODERATOR", "CTO", "DELIVERY", "USER"]
 //GetAll drinks
-drinksRoutes.get("/drinks", drinksController.getAll);
+drinksRoutes.get(
+  "/drinks",
+  authMiddleware,
+  rolesMiddleware(["ADMIN", "MODERATOR", "USER"]),
+  drinksController.getAll
+);
 
 //Get One drink
 drinksRoutes.get("/drinks/:id", drinksController.getOne);
